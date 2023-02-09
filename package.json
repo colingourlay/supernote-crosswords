@@ -1,0 +1,12 @@
+{
+  "name": "wsj-crossword-to-supernote",
+  "version": "1.0.0",
+  "description": "Fetches today's WSJ crossword and uploads it to Supernote Cloud",
+  "main": "index.js",
+  "type": "module",
+  "author": "Colin Gourlay <colin@colin-gourlay.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@colingourlay/supernote-cloud-api": "^1.0.1"
+  }
+}
