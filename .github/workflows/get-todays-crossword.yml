@@ -6,7 +6,7 @@ name: Get today's crossword
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * 1,2,3,4,5,6" # Mon-Sat @ 6am UTC
+    - cron: "0 12 * * 1,2,3,4,5,6" # Mon-Sat @ 12pm UTC
 
 env:
   SUPERNOTE_CLOUD_EMAIL: ${{ secrets.SUPERNOTE_CLOUD_EMAIL }}
