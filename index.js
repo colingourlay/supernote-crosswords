@@ -13,19 +13,25 @@ if (!email || !password) {
   process.exit(1);
 }
 
+const padTwoDigits = (num) => String(num).padStart(2, "0");
+const getWeekday = (date) => date.getDay();
+const getYYYYMMDD = (date) =>
+  [
+    date.getFullYear(),
+    padTwoDigits(date.getMonth() + 1),
+    padTwoDigits(date.getDate()),
+  ].join("-");
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const nowUTC = new Date();
-const nowNYLocaleString = nowUTC.toLocaleString("en-US", {
+const weekdayUTC = getWeekday(nowUTC);
+const yyyymmddUTC = getYYYYMMDD(nowUTC);
+const nowETLocaleString = nowUTC.toLocaleString("en-US", {
   timeZone: "America/New_York",
 });
-const now = new Date(nowNYLocaleString);
-const weekday = now.getDay();
-const padTwoDigits = (num) => String(num).padStart(2, "0");
-const yyyy_mm_dd = [
-  now.getFullYear(),
-  padTwoDigits(now.getMonth() + 1),
-  padTwoDigits(now.getDate()),
-].join("-");
+const nowET = new Date(nowETLocaleString);
+const weekdayET = getWeekday(nowET);
+const yyyymmddET = getYYYYMMDD(nowET);
 
 const getUploadFolderId = async (folderPath, token) => {
   const pathSegments = folderPath.split("/");
@@ -49,23 +55,26 @@ const getUploadFolderId = async (folderPath, token) => {
 };
 
 const FILE_NAME_MAPPINGS = [
+  [/(\d{4})-(\d{2})-(\d{2})-guardian-cryptic/, "gdn.cryptic.$1$2$3"],
+  [/(\d{4})-(\d{2})-(\d{2})-guardian-quick/, "gdn.quick.$1$2$3"],
   [/(\d{4})-(\d{2})-(\d{2})-wsj-number/, "WSJ_$2$3"],
   [/(\d{4})-(\d{2})-(\d{2})-wsj-standard/, "XWD$2$3$1"],
   [/(\d{4})-(\d{2})-(\d{2})-wsj-variety/, "SatPuz$2$3$1"],
 ];
 
+const URL_BASE_MAPPINGS = {
+  guardian: "https://crosswords-static.guim.co.uk/",
+  wsj: "https://s.wsj.net/public/resources/documents/",
+};
+
 const getFileURLAndPath = (fileName) => {
+  const base = URL_BASE_MAPPINGS[fileName.match(/\d{4}-\d{2}-\d{2}-(\w+)/)[1]];
   const [pattern, replacement] = FILE_NAME_MAPPINGS.find(([pattern]) =>
     pattern.test(fileName)
   );
+  const mappedFileName = fileName.replace(pattern, replacement);
 
-  return [
-    `https://s.wsj.net/public/resources/documents/${fileName.replace(
-      pattern,
-      replacement
-    )}`,
-    join(__dirname, fileName),
-  ];
+  return [`${base}${mappedFileName}`, join(__dirname, fileName)];
 };
 
 const downloadFile = async (fileURL, filePath) =>
@@ -104,31 +113,39 @@ const deliverFile = async (fileName, folderId, token) => {
 };
 
 (async () => {
-  if (weekday === 0) {
-    console.log("Today is Sunday. No puzzles to deliver.");
-
-    return;
-  }
-
   const token = await login(email, password);
   const folderId = await getUploadFolderId("Document/Crosswords", token);
   const deliveries = [];
 
-  console.log(`Delivering today's standard puzzle.`);
-  deliveries.push(
-    deliverFile(`${yyyy_mm_dd}-wsj-standard.pdf`, folderId, token)
-  );
-
-  if (weekday === 6) {
-    console.log(`Delivering today's number puzzle.`);
+  if (weekdayUTC !== 0) {
+    console.log(`Delivering today's Guardian cryptic puzzle.`);
     deliveries.push(
-      deliverFile(`${yyyy_mm_dd}-wsj-number.pdf`, folderId, token)
+      deliverFile(`${yyyymmddUTC}-guardian-cryptic.pdf`, folderId, token)
     );
 
-    console.log(`Delivering today's variety puzzle.`);
+    console.log(`Delivering today's Guardian quick puzzle.`);
     deliveries.push(
-      deliverFile(`${yyyy_mm_dd}-wsj-variety.pdf`, folderId, token)
+      deliverFile(`${yyyymmddUTC}-guardian-quick.pdf`, folderId, token)
     );
+  }
+
+  if (weekdayET !== 0) {
+    console.log(`Delivering today's WSJ standard puzzle.`);
+    deliveries.push(
+      deliverFile(`${yyyymmddET}-wsj-standard.pdf`, folderId, token)
+    );
+
+    if (weekdayET === 6) {
+      console.log(`Delivering today's WSJ number puzzle.`);
+      deliveries.push(
+        deliverFile(`${yyyymmddET}-wsj-number.pdf`, folderId, token)
+      );
+
+      console.log(`Delivering today's WSJ variety puzzle.`);
+      deliveries.push(
+        deliverFile(`${yyyymmddET}-wsj-variety.pdf`, folderId, token)
+      );
+    }
   }
 
   await Promise.all(deliveries);
