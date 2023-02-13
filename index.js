@@ -21,11 +21,11 @@ const nowNYLocaleString = nowUTC.toLocaleString("en-US", {
 const now = new Date(nowNYLocaleString);
 const weekday = now.getDay();
 const padTwoDigits = (num) => String(num).padStart(2, "0");
-const mdy = [
+const yyyy_mm_dd = [
+  now.getFullYear(),
   padTwoDigits(now.getMonth() + 1),
   padTwoDigits(now.getDate()),
-  now.getFullYear(),
-].join("");
+].join("-");
 
 const getUploadFolderId = async (folderPath, token) => {
   const pathSegments = folderPath.split("/");
@@ -48,10 +48,25 @@ const getUploadFolderId = async (folderPath, token) => {
   return folderId;
 };
 
-const getFileURLAndPath = (fileName) => [
-  `https://s.wsj.net/public/resources/documents/${fileName}`,
-  join(__dirname, fileName),
+const FILE_NAME_MAPPINGS = [
+  [/(\d{4})-(\d{2})-(\d{2})-wsj-number/, "WSJ_$2$3"],
+  [/(\d{4})-(\d{2})-(\d{2})-wsj-standard/, "XWD$2$3$1"],
+  [/(\d{4})-(\d{2})-(\d{2})-wsj-variety/, "SatPuz$2$3$1"],
 ];
+
+const getFileURLAndPath = (fileName) => {
+  const [pattern, replacement] = FILE_NAME_MAPPINGS.find(([pattern]) =>
+    pattern.test(fileName)
+  );
+
+  return [
+    `https://s.wsj.net/public/resources/documents/${fileName.replace(
+      pattern,
+      replacement
+    )}`,
+    join(__dirname, fileName),
+  ];
+};
 
 const downloadFile = async (fileURL, filePath) =>
   finished(
@@ -78,7 +93,9 @@ const deliverFile = async (fileName, folderId, token) => {
   const { size } = statSync(filePath);
 
   if (size < 4096) {
-    console.log(`${fileName} is not available yet.`);
+    console.log(
+      `${fileURL} is not available yet, or the URL prediction has failed for today.`
+    );
 
     return Promise.resolve();
   }
@@ -98,14 +115,20 @@ const deliverFile = async (fileName, folderId, token) => {
   const deliveries = [];
 
   console.log(`Delivering today's standard puzzle.`);
-  deliveries.push(deliverFile(`XWD${mdy}.pdf`, folderId, token));
+  deliveries.push(
+    deliverFile(`${yyyy_mm_dd}-wsj-standard.pdf`, folderId, token)
+  );
 
   if (weekday === 6) {
     console.log(`Delivering today's number puzzle.`);
-    deliveries.push(deliverFile(`WSJ_${mdy.slice(0, 4)}.pdf`, folderId, token));
+    deliveries.push(
+      deliverFile(`${yyyy_mm_dd}-wsj-number.pdf`, folderId, token)
+    );
 
     console.log(`Delivering today's variety puzzle.`);
-    deliveries.push(deliverFile(`SatPuz${mdy}.pdf`, folderId, token));
+    deliveries.push(
+      deliverFile(`${yyyy_mm_dd}-wsj-variety.pdf`, folderId, token)
+    );
   }
 
   await Promise.all(deliveries);
