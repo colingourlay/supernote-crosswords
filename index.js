@@ -1,4 +1,4 @@
-import { createWriteStream } from "node:fs";
+import { createWriteStream, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
@@ -62,8 +62,27 @@ const downloadFile = async (fileURL, filePath) =>
 
 const deliverFile = async (fileName, folderId, token) => {
   const [fileURL, filePath] = getFileURLAndPath(fileName);
+  const items = await fileList(token, folderId);
+  const isFileAlreadyDelivered = items.some(
+    (item) => item.fileName === fileName
+  );
+
+  if (isFileAlreadyDelivered) {
+    console.log(`${fileName} has already been delivered.`);
+
+    return Promise.resolve();
+  }
 
   await downloadFile(fileURL, filePath);
+
+  const { size } = statSync(filePath);
+
+  if (size < 4096) {
+    console.log(`${fileName} is not available yet.`);
+
+    return Promise.resolve();
+  }
+
   await uploadFile(token, filePath, folderId);
 };
 
