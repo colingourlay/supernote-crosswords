@@ -26,12 +26,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const nowUTC = new Date();
 const weekdayUTC = getWeekday(nowUTC);
 const yyyymmddUTC = getYYYYMMDD(nowUTC);
-const nowETLocaleString = nowUTC.toLocaleString("en-US", {
-  timeZone: "America/New_York",
-});
-const nowET = new Date(nowETLocaleString);
-const weekdayET = getWeekday(nowET);
-const yyyymmddET = getYYYYMMDD(nowET);
+// const nowETLocaleString = nowUTC.toLocaleString("en-US", {
+//   timeZone: "America/New_York",
+// });
+// const nowET = new Date(nowETLocaleString);
+// const weekdayET = getWeekday(nowET);
+// const yyyymmddET = getYYYYMMDD(nowET);
 
 const getUploadFolderId = async (folderPath, token) => {
   const pathSegments = folderPath.split("/");
@@ -129,21 +129,26 @@ const deliverFile = async (fileName, folderId, token) => {
     );
   }
 
-  if (weekdayET !== 0) {
+  // if (weekdayET !== 0) {
+  if (weekdayUTC !== 0) {
     console.log(`Delivering today's WSJ standard puzzle.`);
     deliveries.push(
-      deliverFile(`${yyyymmddET}-wsj-standard.pdf`, folderId, token)
+      // deliverFile(`${yyyymmddET}-wsj-standard.pdf`, folderId, token)
+      deliverFile(`${yyyymmddUTC}-wsj-standard.pdf`, folderId, token)
     );
 
-    if (weekdayET === 6) {
+    // if (weekdayET === 6) {
+    if (weekdayUTC === 6) {
       console.log(`Delivering today's WSJ number puzzle.`);
       deliveries.push(
-        deliverFile(`${yyyymmddET}-wsj-number.pdf`, folderId, token)
+        // deliverFile(`${yyyymmddET}-wsj-number.pdf`, folderId, token)
+        deliverFile(`${yyyymmddUTC}-wsj-number.pdf`, folderId, token)
       );
 
       console.log(`Delivering today's WSJ variety puzzle.`);
       deliveries.push(
-        deliverFile(`${yyyymmddET}-wsj-variety.pdf`, folderId, token)
+        // deliverFile(`${yyyymmddET}-wsj-variety.pdf`, folderId, token)
+        deliverFile(`${yyyymmddUTC}-wsj-variety.pdf`, folderId, token)
       );
     }
   }
