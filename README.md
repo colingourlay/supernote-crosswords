@@ -1,4 +1,4 @@
-## Supernote Crosswords
+# Supernote Crosswords
 
 An automated utility to upload daily crosswords to your Supernote Cloud
 
