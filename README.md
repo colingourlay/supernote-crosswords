@@ -18,9 +18,9 @@ Currently, the script (running every 6 hours by **GitHub Actions**) will deliver
 
 1. On your Supernote, create a folder under `Document` called `Crosswords`
 2. Fork this repository to get your own copy
-3. In your fork's settings, go to `Security > Secrets and variables > Actions` add two **Repository secrets**:
-   a) `SUPERNOTE_CLOUD_EMAIL`
-   b) `SUPERNOTE_CLOUD_PASSWORD`
+3. In your fork's settings, go to `Security > Secrets and variables > Actions` add two **Repository secrets** to hold your Supernote Cloud login credentials:
+   - `SUPERNOTE_CLOUD_EMAIL`
+   - `SUPERNOTE_CLOUD_PASSWORD`
 4. Wait for the script to run on schedule, or manually trigger it on the `Actions` tab
 5. On your Supernote, perform a sync with Supernote Cloud, and check your `Document/Crosswords` folder.
 
