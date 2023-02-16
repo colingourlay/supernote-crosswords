@@ -2,6 +2,8 @@
 
 An automated utility to upload daily crosswords to your Supernote Cloud
 
+![Photograph of a crossword PDF on a Supernote A5X](file.jpg)
+
 ## What does it do?
 
 Currently, the script (running every 6 hours by **GitHub Actions**) will deliver the following puzzles:
@@ -27,6 +29,8 @@ Currently, the script (running every 6 hours by **GitHub Actions**) will deliver
 Puzzles are named with the following format (making them nicely sortable):
 
 `{yyyy}-{mm}-{dd}-{provider}-{kind}.pdf`
+
+![Photograph of a crosswords folder on a Supernote A5X](folder.jpg)
 
 ## How does this talk to Supernote Cloud? I thought there's no API
 
