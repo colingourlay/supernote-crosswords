@@ -1,0 +1,23 @@
+name: Deliver crosswords
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *" # Runs every 6 hours
+
+env:
+  SUPERNOTE_CLOUD_EMAIL: ${{ secrets.SUPERNOTE_CLOUD_EMAIL }}
+  SUPERNOTE_CLOUD_PASSWORD: ${{ secrets.SUPERNOTE_CLOUD_PASSWORD }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "npm"
+      - run: npm install
+      - run: node index.js
