@@ -12,7 +12,7 @@ Currently, the script (running every 6 hours by **GitHub Actions**) will deliver
   - [Mon-Sat] Quick crossword
   - [Mon-Sat] Cryptic crossword
 - Wall Street Journal
-  - [Mon-Fri] Daily crossword[^1]
+  - [Mon-Sat] Standard crossword[^1]
   - [Sat] Variety crossword
   - [Sat] Number puzzles
 
